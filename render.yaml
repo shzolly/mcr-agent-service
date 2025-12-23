@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: mcr-agent-service
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-nano
+      - key: PEGA_BASE_URL
+        sync: false
+      - key: PEGA_BEARER_TOKEN
+        sync: false
+      - key: PEGA_API_KEY
+        sync: false
+      - key: PEGA_TIMEOUT_S
+        value: "20"
