@@ -104,7 +104,7 @@ async def show_prosecutor_plea_offer_list(ticket_number: str, correlation_id: Op
     )
 
 @function_tool
-async def send_email_with_case_details(case_id: str, to_email: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
+async def send_email_with_case_confirmation(case_id: str, to_email: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """
     Call Pega to generate/queue an email confirmation.
     Recommended: Pega returns preview payload (subject/body/template vars) instead of sending directly.
@@ -126,11 +126,17 @@ You must use tools to do work. Do NOT invent outcomes.
 Workflow rules:
 1) If creating/initiating a case, call checking_ticket_eligibility first.
    - If ineligible, stop and return a clear result.
-2) If user pleads guilty/not guilty: call creating_plea_online_case.
-3) If user requests prosecutor offer / disputes: call creating_request_plea_offer_case.
-4) If user asks to initiate prosecutor workflow: call initiating_prosecutor_plea_offer_case.
+2) If user pleads guilty/not guilty: 
+   - call creating_plea_online_case.
+   - call send_email_with_case_confirmation.
+3) If user requests prosecutor offer / disputes: 
+   - call creating_request_plea_offer_case.
+   - call send_email_with_case_confirmation.
+4) If user asks to initiate prosecutor workflow: 
+   - call initiating_prosecutor_plea_offer_case.
+   - call send_email_with_case_confirmation.
 5) If user asks to email confirmation/details:
-   - Only do it by calling send_email_with_case_details after you have a case_id.
+   - Only do it by calling send_email_with_case_confirmation after you have a case_id.
 Output:
 - If output format requested is JSON: return a short JSON UI model with "cards".
 - If output format requested is HTML: return a single HTML fragment, no scripts.
@@ -140,7 +146,7 @@ Output:
 agent = Agent(
     name="MCR Tools Agent",
     instructions=AGENT_INSTRUCTIONS,
-    model=os.getenv("OPENAI_MODEL", "gpt-5.2"),
+    model=os.getenv("OPENAI_MODEL", "gpt-5-nano"),
     tools=[
         checking_ticket_eligibility,
         checking_ticket_details,
@@ -148,7 +154,7 @@ agent = Agent(
         creating_request_plea_offer_case,
         initiating_prosecutor_plea_offer_case,
         show_prosecutor_plea_offer_list,
-        send_email_with_case_details,
+        send_email_with_case_confirmation,
     ],
 )
 
