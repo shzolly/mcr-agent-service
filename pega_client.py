@@ -1,29 +1,42 @@
 # pega_client.py
 import os
 import httpx
+import base64
 from typing import Any, Dict, Optional
+
 
 class PegaClient:
     def __init__(self):
         self.base_url = os.environ["PEGA_BASE_URL"].rstrip("/")
         self.timeout_s = float(os.getenv("PEGA_TIMEOUT_S", "20"))
-        self.api_key = os.getenv("PEGA_API_KEY", "")  # optional
-        self.bearer_token = os.getenv("PEGA_BEARER_TOKEN", "")  # optional
+
+        # Basic Auth credentials
+        self.username = os.getenv("PEGA_BASIC_USERNAME")
+        self.password = os.getenv("PEGA_BASIC_PASSWORD")
+
+        if not self.username or not self.password:
+            raise RuntimeError("Missing PEGA_BASIC_USERNAME or PEGA_BASIC_PASSWORD")
 
     def _headers(self) -> Dict[str, str]:
-        headers = {
+        auth_bytes = f"{self.username}:{self.password}".encode("utf-8")
+        auth_b64 = base64.b64encode(auth_bytes).decode("utf-8")
+
+        return {
             "Accept": "application/json",
             "Content-Type": "application/json",
+            "Authorization": f"Basic {auth_b64}",
         }
-        if self.bearer_token:
-            headers["Authorization"] = f"Bearer {self.bearer_token}"
-        if self.api_key:
-            headers["x-api-key"] = self.api_key
-        return headers
 
-    async def post(self, path: str, payload: Dict[str, Any], correlation_id: Optional[str] = None) -> Dict[str, Any]:
+    async def post(
+        self,
+        path: str,
+        payload: Dict[str, Any],
+        correlation_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+
         url = f"{self.base_url}{path}"
         headers = self._headers()
+
         if correlation_id:
             headers["X-Correlation-Id"] = correlation_id
 
