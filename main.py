@@ -51,7 +51,7 @@ class AgentRunResponse(BaseModel):
 async def checking_ticket_eligibility(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to check if a ticket is eligible for online processing."""
     return await pega.post(
-        "/mcr/api/v1/tickets/eligibility",
+        "/mcr/tickets/eligibility",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -60,7 +60,7 @@ async def checking_ticket_eligibility(ticket_number: str, correlation_id: Option
 async def checking_ticket_details(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to fetch ticket details."""
     return await pega.post(
-        "/mcr/api/v1/tickets/details",
+        "/mcr/tickets/details",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -70,7 +70,7 @@ async def creating_plea_online_case(ticket_number: str, plea: str, defendant_ema
                                    correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to create a Plea Online case."""
     return await pega.post(
-        "/mcr/api/v1/cases/plea-online",
+        "/mcr/cases/plea-online",
         {"ticketNumber": ticket_number, "plea": plea, "defendantEmail": defendant_email},
         correlation_id=correlation_id,
     )
@@ -80,7 +80,7 @@ async def creating_request_plea_offer_case(ticket_number: str, reason: str, defe
                                           correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to create a Request Plea Offer case."""
     return await pega.post(
-        "/mcr/api/v1/cases/request-plea-offer",
+        "/mcr/cases/request-plea-offer",
         {"ticketNumber": ticket_number, "reason": reason, "defendantEmail": defendant_email},
         correlation_id=correlation_id,
     )
@@ -89,7 +89,7 @@ async def creating_request_plea_offer_case(ticket_number: str, reason: str, defe
 async def initiating_prosecutor_plea_offer_case(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to initiate prosecutor plea offer workflow."""
     return await pega.post(
-        "/mcr/api/v1/cases/prosecutor-offer/initiate",
+        "/mcr/cases/prosecutor-offer/initiate",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -98,7 +98,7 @@ async def initiating_prosecutor_plea_offer_case(ticket_number: str, correlation_
 async def show_prosecutor_plea_offer_list(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to retrieve prosecutor offer list."""
     return await pega.post(
-        "/mcr/api/v1/tickets/prosecutor-offers",
+        "/mcr/tickets/prosecutor-offers",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -110,7 +110,7 @@ async def send_email_with_case_confirmation(case_id: str, to_email: str, correla
     Recommended: Pega returns preview payload (subject/body/template vars) instead of sending directly.
     """
     return await pega.post(
-        f"/mcr/api/v1/cases/{case_id}/email/preview",
+        f"/mcr/cases/{case_id}/email/preview",
         {"toEmail": to_email},
         correlation_id=correlation_id,
     )
