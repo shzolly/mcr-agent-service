@@ -32,7 +32,7 @@ class AgentRunRequest(BaseModel):
     # optional context from Pega (user id, ticket, locale, etc.)
     context: Dict[str, Any] = Field(default_factory=dict)
     # output format: "html" or "json"
-    output: str = "json"
+    output: str = "html"
 
 
 class AgentRunResponse(BaseModel):
