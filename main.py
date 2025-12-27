@@ -50,8 +50,8 @@ class AgentRunResponse(BaseModel):
 @function_tool
 async def checking_ticket_eligibility(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to check if a ticket is eligible for online processing."""
-    return await pega.post(
-        "/mcr/tickets/eligibility",
+    return await pega.call_tool(
+        "checking_ticket_eligibility",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -59,8 +59,8 @@ async def checking_ticket_eligibility(ticket_number: str, correlation_id: Option
 @function_tool
 async def checking_ticket_details(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to fetch ticket details."""
-    return await pega.post(
-        "/mcr/tickets/details",
+    return await pega.call_tool(
+        "checking_ticket_details",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -69,9 +69,13 @@ async def checking_ticket_details(ticket_number: str, correlation_id: Optional[s
 async def creating_plea_online_case(ticket_number: str, plea: str, defendant_email: Optional[str] = None,
                                    correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to create a Plea Online case."""
-    return await pega.post(
-        "/mcr/cases/plea-online",
-        {"ticketNumber": ticket_number, "plea": plea, "defendantEmail": defendant_email},
+    return await pega.call_tool(
+        "creating_plea_online_case",
+        {
+            "ticketNumber": ticket_number,
+            "plea": plea,
+            "defendantEmail": defendant_email,
+        },
         correlation_id=correlation_id,
     )
 
@@ -79,17 +83,21 @@ async def creating_plea_online_case(ticket_number: str, plea: str, defendant_ema
 async def creating_request_plea_offer_case(ticket_number: str, reason: str, defendant_email: Optional[str] = None,
                                           correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to create a Request Plea Offer case."""
-    return await pega.post(
-        "/mcr/cases/request-plea-offer",
-        {"ticketNumber": ticket_number, "reason": reason, "defendantEmail": defendant_email},
+    return await pega.call_tool(
+        "creating_request_plea_offer_case",
+        {
+            "ticketNumber": ticket_number,
+            "reason": reason,
+            "defendantEmail": defendant_email,
+        },
         correlation_id=correlation_id,
     )
 
 @function_tool
 async def initiating_prosecutor_plea_offer_case(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to initiate prosecutor plea offer workflow."""
-    return await pega.post(
-        "/mcr/cases/prosecutor-offer/initiate",
+    return await pega.call_tool(
+        "initiating_prosecutor_plea_offer_case",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -97,8 +105,8 @@ async def initiating_prosecutor_plea_offer_case(ticket_number: str, correlation_
 @function_tool
 async def show_prosecutor_plea_offer_list(ticket_number: str, correlation_id: Optional[str] = None) -> Dict[str, Any]:
     """Call Pega to retrieve prosecutor offer list."""
-    return await pega.post(
-        "/mcr/tickets/prosecutor-offers",
+    return await pega.call_tool(
+        "show_prosecutor_plea_offer_list",
         {"ticketNumber": ticket_number},
         correlation_id=correlation_id,
     )
@@ -109,9 +117,9 @@ async def send_email_with_case_confirmation(case_id: str, to_email: str, correla
     Call Pega to generate/queue an email confirmation.
     Recommended: Pega returns preview payload (subject/body/template vars) instead of sending directly.
     """
-    return await pega.post(
-        f"/mcr/cases/{case_id}/email/preview",
-        {"toEmail": to_email},
+    return await pega.call_tool(
+        "send_email_with_case_confirmation",
+        {"caseId": case_id, "toEmail": to_email},
         correlation_id=correlation_id,
     )
 
