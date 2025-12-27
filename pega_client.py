@@ -20,23 +20,24 @@ class PegaClient:
     def _headers(self) -> Dict[str, str]:
         auth_bytes = f"{self.username}:{self.password}".encode("utf-8")
         auth_b64 = base64.b64encode(auth_bytes).decode("utf-8")
-
         return {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "Authorization": f"Basic {auth_b64}",
         }
 
-    async def post(
+    async def call_tool(
         self,
-        path: str,
+        tool_name: str,
         payload: Dict[str, Any],
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-
-        url = f"{self.base_url}{path}"
+        """
+        Call the unified Pega tool endpoint:
+        POST /mcr/tickets/tools/{tool_name}
+        """
+        url = f"{self.base_url}/mcr/tickets/tools/{tool_name}"
         headers = self._headers()
-
         if correlation_id:
             headers["X-Correlation-Id"] = correlation_id
 
