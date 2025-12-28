@@ -1,5 +1,6 @@
 # main.py
 import os
+import logging
 import uuid
 from typing import Any, Dict, Optional, List
 
@@ -8,6 +9,16 @@ from pydantic import BaseModel, Field
 
 from agents import Agent, Runner, function_tool  # Agents SDK :contentReference[oaicite:4]{index=4}
 from pega_client import PegaClient
+
+
+# --- Logging setup ---
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+)
+
+logger = logging.getLogger("mcr.agent")
 
 
 # ----------------------------
@@ -184,6 +195,14 @@ def _extract_text(run_result) -> str:
 async def agent_run(req: AgentRunRequest):
     correlation_id = req.correlation_id or str(uuid.uuid4())
 
+    logger.info(
+        "AGENT RUN START correlation_id=%s session_id=%s output=%s prompt=%s",
+        correlation_id,
+        req.session_id,
+        req.output,
+        req.prompt,
+    )
+
     # Provide correlation_id to the agent via prompt/context.
     # Simplest approach: append it to the prompt and ensure tools accept correlation_id param.
     prompt = (
@@ -199,6 +218,12 @@ async def agent_run(req: AgentRunRequest):
 
         # Optional: extract tool calls if available (varies by SDK version)
         tool_calls = []
+
+        logger.info(
+            "AGENT RUN SUCCESS correlation_id=%s",
+            correlation_id,
+        )
+        
         for attr in ("new_items", "items", "steps", "trace"):
             if hasattr(rr, attr):
                 val = getattr(rr, attr)
@@ -210,4 +235,9 @@ async def agent_run(req: AgentRunRequest):
         return AgentRunResponse(correlation_id=correlation_id, output=final, tool_calls=tool_calls)
 
     except Exception as e:
+        logger.error(
+            "AGENT RUN ERROR correlation_id=%s error=%s",
+            correlation_id,
+            repr(e),
+        )
         raise HTTPException(status_code=500, detail=f"Agent run failed: {e}")
