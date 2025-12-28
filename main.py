@@ -85,7 +85,6 @@ async def creating_plea_online_case(ticket_number: str, plea: str, defendant_ema
         {
             "ticketNumber": ticket_number,
             "plea": plea,
-            "defendantEmail": defendant_email,
         },
         correlation_id=correlation_id,
     )
@@ -99,7 +98,6 @@ async def creating_request_plea_offer_case(ticket_number: str, reason: str, defe
         {
             "ticketNumber": ticket_number,
             "reason": reason,
-            "defendantEmail": defendant_email,
         },
         correlation_id=correlation_id,
     )
